@@ -1,0 +1,90 @@
+{# index.html #}
+{% extends "layout.html" %}
+{% block body %}
+    <h1>Welcome to the Homepage!</h1>
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
+        <label for="csvFile">Upload CSV (Max 5MB):</label>
+        <!-- Specifying .csv and text/csv for compatibility -->
+        <input type="file"
+               id="csvFile"
+               name="csvFile"
+               accept=".csv, text/csv"
+               required>
+        <button type="submit">Submit</button>
+    </form>
+    <div id="chartReport">
+        <canvas id="myChart"></canvas>
+    </div>
+    <!-- The trigger button -->
+    <button onclick="downloadPDF()">Download as PDF</button>
+    <script>
+ function downloadPDF() {
+    // Target the WRAPPER div, not the raw canvas element
+    const element = document.getElementById('chartReport'); 
+    
+    if (!element) {
+        console.error("Element #chartReport not found!");
+        return;
+    }
+
+        const options = {
+        margin:       0.5,
+        filename:     'chart-export.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { 
+            scale: 2, 
+            useCORS: true, 
+            willReadFrequently: true 
+        },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+    };
+
+    // This will now execute safely
+    html2pdf().set(options).from(element).save();
+}
+ 
+    </script>
+    <!-- Below is the script for the charts -->
+    <script>
+  const ctx = document.getElementById('myChart');
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+      datasets: [{
+        label: '# of Votes',
+        data: [12, 19, 3, 5, 2, 3],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+    </script>
+    <!-- Below is AI generted code to limit file size and files to only 1 at a time -->
+    <script>
+document.getElementById('uploadForm').addEventListener('submit', function(event) {
+  const fileInput = document.getElementById('csvFile');
+  
+  if (fileInput.files.length > 1) {
+    alert("You can only upload a single file.");
+    event.preventDefault();
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const maxSize = 5 * 1024 * 1024; // 5 Megabytes in bytes
+
+  if (file && file.size > maxSize) {
+    alert("File size exceeds the 5MB maximum limit.");
+    event.preventDefault(); // Stop form submission
+  }
+});
+    </script>
+{% endblock %}
